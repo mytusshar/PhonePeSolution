@@ -17,14 +17,17 @@ public class Team {
     private int ballsPlayed = 0;
     private int totalWickets = 0; // this is for batting team
     private int totalWicketsTaken = 0; // this is for bowling team
-    private int overNumber = 0;
+    private int overNumber = 0; // for batting team
+    private int oversBowled = 0; // for bolwing team
     private int ballsInOver = 0;
     private int totalWideBalls = 0;
     private int totalNoBalls = 0;
     private int status;
+    private int totalOvers;
 
-    Team(String name, int numPlayers) {
+    Team(String name, int numPlayers, int totalOvers) {
         this.name = name;
+        this.totalOvers = totalOvers;
         this.playersBattingOrder = new ArrayList<>(numPlayers);
         this.playersBowlingOrder = new ArrayList<>(numPlayers);
     }
@@ -74,24 +77,17 @@ public class Team {
 
         if(ball.isWicket()) {
             this.totalWickets++;
-            if(!isAllOut()) {
+            if(!this.isAllOut()) {
                 this.sendNewPlayerToBat();
             }
         } else if(!ball.isWide() && !ball.isNoBall() && (runsInThisBall % 2 == 1)) {
             this.strikeChange(); // if its a valid ball and odd runs scored, then change the strike.
-        }
-
-        if(this.isAllOut()) {
-            this.printScore();
         }
     }
     private void addBowlerBall(Ball ball) {
         this.currentBowler.updateBalls(ball);
         if(ball.isWicket()) {
             this.totalWicketsTaken++;
-        }
-        if(isAllOut()) {
-            this.printScore();
         }
     }
 
@@ -101,10 +97,12 @@ public class Team {
             this.strikeChange();
             this.overNumber++;
         } else {
+            this.oversBowled++;
             this.currentBowler.overEnd();
-            this.sendNewPlayerToBowl();
+            if(this.oversBowled < this.totalOvers) {
+                this.sendNewPlayerToBowl();
+            }
         }
-        this.printScore();
     }
 
     private void strikeChange() {
@@ -143,7 +141,7 @@ public class Team {
         return this.teamScore;
     }
 
-    private void printScore() {
+    public void printScore() {
         System.out.println();
         
         if(this.status == Team.STATUS_BATTING) {
@@ -157,7 +155,7 @@ public class Team {
     
             System.out.println("=> Total: " + this.getScore() + "/" + this.totalWickets);
             String overs = "" + this.overNumber;
-            overs += ((this.ballsInOver < 6) ? ("." + this.ballsInOver) : "");
+            overs += ((this.ballsInOver < CricketScorecard.BALLS_IN_OVER) ? ("." + this.ballsInOver) : "");
             System.out.println("=> Overs: " + overs);
         } else {
             System.out.println("Scorecard for #" + getName() + "# (Bowling)");

@@ -34,6 +34,6 @@ public class Ball {
         return (this.runs == 4);
     }
     public boolean isSix() {
-        return (this.runs == 6);
+        return (this.runs == CricketScorecard.BALLS_IN_OVER);
     }
 }

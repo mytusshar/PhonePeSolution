@@ -24,7 +24,7 @@ public class Bowler extends Player{
     public void overEnd() {
         this.setStatus(Bowler.STATUS_NOT_BOWLING);
         this.overs++;
-        if(this.dotBallsInOver == 6) {
+        if((this.dotBallsInOver == CricketScorecard.BALLS_IN_OVER) && (this.ballsInOver == CricketScorecard.BALLS_IN_OVER)) {
             this.maidenOvers++;
         }
         this.ballsInOver = 0;

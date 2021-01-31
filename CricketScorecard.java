@@ -2,16 +2,18 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class CricketScorecard {
+    public static final int BALLS_IN_OVER = 6;
+
     private ArrayList<Team> teams;
     private Team team1;
     private Team team2;
     private Team battingTeam;
     private Team bowlingTeam;
 
-    CricketScorecard(int numOfPlayers) {
+    CricketScorecard(int numOfPlayers, int numOfOvers) {
         teams = new ArrayList<>();
-        team1 = new Team("Team1", numOfPlayers);
-        team2 = new Team("Team2", numOfPlayers);
+        team1 = new Team("Team1", numOfPlayers, numOfOvers);
+        team2 = new Team("Team2", numOfPlayers, numOfOvers);
         teams.add(team1);
         teams.add(team2);
     }
@@ -34,6 +36,27 @@ public class CricketScorecard {
         bowlingTeam.setStatus(Team.STATUS_BOWLING);
     }
 
+    private void matchCompleted() {
+        // match result..
+        System.out.println("#######################");
+        if(team1.getScore() == team2.getScore()) {
+            System.out.println("Result: Match Draw");
+        } else {
+            String winningTeamName = team1.getScore() > team2.getScore() ? team1.getName() : team2.getName();
+            int scoreDiff = Math.abs(team1.getScore() - team2.getScore());
+            System.out.println("Result: " + winningTeamName + " won the match by " + scoreDiff + " run.");
+        }
+        System.out.println("#######################");
+    }
+
+    private void showScores() {
+        System.out.println("#######################");
+        battingTeam.printScore();
+        System.out.println("-----------------------");
+        bowlingTeam.printScore();
+        System.out.println("#######################");
+    }
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
@@ -41,11 +64,11 @@ public class CricketScorecard {
         int numOfPlayers = sc.nextInt();
         int numOfOvers = sc.nextInt();
                                     
-        CricketScorecard cScorecard = new CricketScorecard(numOfPlayers);
-        cScorecard.setBattingOrder();
+        CricketScorecard sCard = new CricketScorecard(numOfPlayers, numOfOvers);
+        sCard.setBattingOrder();
 
         // reading batting and bwoling order for teams
-        for(Team team : cScorecard.teams) {
+        for(Team team : sCard.teams) {
             // getting batting order from input for team
             for(int plNum = 0; plNum < numOfPlayers; plNum++) {
                 String playerName = sc.next();
@@ -61,20 +84,31 @@ public class CricketScorecard {
             }
         }
 
-        for(int i = 0; i < cScorecard.teams.size(); i++) {
+        for(int i = 0; i < sCard.teams.size(); i++) {
             // start batting
-            cScorecard.battingTeam.startBatting();
+            sCard.battingTeam.startBatting();
             // start bowling
-            cScorecard.bowlingTeam.startBowling();
+            sCard.bowlingTeam.startBowling();
 
             // reading overs for team
             for(int overNum = 0; overNum < numOfOvers; overNum++) {
-                int ballsInOver = 6;
+                int ballsInOver = CricketScorecard.BALLS_IN_OVER;
+
+                // edge case 0: check if all out before next over..
+                if(sCard.battingTeam.isAllOut()) {
+                    break;
+                }
+
                 // getting each over input..
-                for(int ballNum = 0; ballNum < ballsInOver; ballNum++) {
-                    if(cScorecard.battingTeam.isAllOut()) {
-                        break; // over breaking condition..
+                for(int ballNum = 0; (ballNum < ballsInOver) && !sCard.battingTeam.isAllOut(); ballNum++) { // edge case 1: if all out.. over breaking condition..
+                    // edge case 2: if during second inning if batting team wins before completion of overs
+                    if((i == 1) && (sCard.battingTeam.getScore() > sCard.bowlingTeam.getScore())) {
+                        // batting team wins..
+                        sCard.showScores();
+                        sCard.matchCompleted();
+                        return;
                     }
+
                     // reading each ball.
                     String ballType = sc.next();
                     Ball ball = new Ball(ballType);
@@ -82,30 +116,25 @@ public class CricketScorecard {
                         ballsInOver++; // if wide ball, then increasing balls in over..
                     }
 
-                    cScorecard.battingTeam.addPlayedBall(ball); // adding ball for batting team
-                    cScorecard.bowlingTeam.addPlayedBall(ball); // adding ball for bowling team
+                    sCard.battingTeam.addPlayedBall(ball); // adding ball for batting team
+                    sCard.bowlingTeam.addPlayedBall(ball); // adding ball for bowling team
 
                     // over completion.
                     if(ballNum == ballsInOver-1) {
-                        cScorecard.battingTeam.overCompleted(); // over completed..
-                        cScorecard.bowlingTeam.overCompleted(); // over completed..
+                        sCard.battingTeam.overCompleted(); // over completed..
+                        sCard.bowlingTeam.overCompleted(); // over completed..
                     }
                 }
-
-                System.out.println("---------------");
+                sCard.showScores();
             }
 
-            cScorecard.changeBattingOrder();
-            System.out.println("#######################");
+            // change batting order only when first team is completed playing..
+            if(i == 0) {
+                sCard.changeBattingOrder();
+            }
         }
 
-        // match result..
-        if(cScorecard.team1.getScore() == cScorecard.team2.getScore()) {
-            System.out.println("Result: Match Draw");
-        } else {
-            String winningTeamName = cScorecard.team1.getScore() > cScorecard.team2.getScore() ? cScorecard.team1.getName() : cScorecard.team2.getName();
-            int scoreDiff = Math.abs(cScorecard.team1.getScore() - cScorecard.team2.getScore());
-            System.out.println("Result: " + winningTeamName + " won the match by " + scoreDiff + " run.");
-        }
+        // show results..
+        sCard.matchCompleted();
     }
 }
