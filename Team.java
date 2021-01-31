@@ -1,54 +1,78 @@
 import java.util.ArrayList;
 
 public class Team {
-    private ArrayList<Player> playersBatOrder;
-    private Player plOnStrike;
-    private Player plNonStrike;
+    public static final int STATUS_BATTING = 1;
+    public static final int STATUS_BOWLING = 2;
+
+    private ArrayList<Batsman> playersBattingOrder;
+    private ArrayList<Bowler> playersBowlingOrder;
+    private Batsman plOnStrike;
+    private Batsman plNonStrike;
+    private Bowler currentBowler;
     
     private String name;
     private int nextBattingPlayer = 0;
+    private int nextBowlingPlayer = 0;
     private int teamScore = 0;
     private int ballsPlayed = 0;
-    private int totalWickets = 0;
+    private int totalWickets = 0; // this is for batting team
+    private int totalWicketsTaken = 0; // this is for bowling team
     private int overNumber = 0;
     private int ballsInOver = 0;
     private int totalWideBalls = 0;
     private int totalNoBalls = 0;
+    private int status;
 
     Team(String name, int numPlayers) {
         this.name = name;
-        this.playersBatOrder = new ArrayList<>(numPlayers);
+        this.playersBattingOrder = new ArrayList<>(numPlayers);
+        this.playersBowlingOrder = new ArrayList<>(numPlayers);
     }
 
-    public void addPlayer(Player player) {
-        this.playersBatOrder.add(player);
+    public void addBatsman(Batsman player) {
+        this.playersBattingOrder.add(player);
+    }
+    public void addBowler(Bowler player) {
+        this.playersBowlingOrder.add(player);
     }
 
-    public void startIning() {
+    public void startBatting() {
         this.plOnStrike = getNextPlayer();
         this.plNonStrike = getNextPlayer();
     }
+    public void startBowling() {
+        this.sendNewPlayerToBowl();
+    }
 
     public void addPlayedBall(Ball ball) {
-        this.updateBalls(); // updating balls played by team
+        if(this.status == Team.STATUS_BATTING) {
+            this.addBatsmanBall(ball);
+        } else {
+            this.addBowlerBall(ball);
+        }
+    }
+
+    private void addBatsmanBall(Ball ball) {
+        this.ballsPlayed++; // updating balls played by team
         this.plOnStrike.updateBalls(ball); // updating on strike player data
         
+        // updating score
         int runsInThisBall = ball.getRuns();
-        this.updateScore(runsInThisBall);
+        this.teamScore += runsInThisBall;
 
         if(!ball.isWide() && !ball.isNoBall()) {
-            this.updateBallsInOver();
+            this.ballsInOver++;
         }
 
         if(ball.isWide()) {
-            this.updateWideBalls();
+            this.totalWideBalls++;
         }
         if(ball.isNoBall()) {
-            this.updateNoBalls();
+            this.totalNoBalls++;
         }
 
         if(ball.isWicket()) {
-            this.updateWickets();
+            this.totalWickets++;
             if(!isAllOut()) {
                 this.sendNewPlayerToBat();
             }
@@ -60,16 +84,30 @@ public class Team {
             this.printPlayerScores();
         }
     }
+    private void addBowlerBall(Ball ball) {
+        this.currentBowler.updateBalls(ball);
+        if(ball.isWicket()) {
+            this.totalWicketsTaken++;
+        }
+        if(isAllOut()) {
+            this.printPlayerScores();
+        }
+    }
 
     public void overCompleted() {
-        this.resetBallsInOver();
-        this.strikeChange();
-        this.updateOverNumber();
+        if(this.status == Team.STATUS_BATTING) {
+            this.ballsInOver = 0;
+            this.strikeChange();
+            this.overNumber++;
+        } else {
+            this.currentBowler.overEnd();
+            this.sendNewPlayerToBowl();
+        }
         this.printPlayerScores();
     }
 
     private void strikeChange() {
-        Player temp = plOnStrike;
+        Batsman temp = plOnStrike;
         plOnStrike = plNonStrike;
         plNonStrike = temp;
     }
@@ -77,85 +115,56 @@ public class Team {
     private void sendNewPlayerToBat() {
         this.plOnStrike = getNextPlayer();
     }
+    private void sendNewPlayerToBowl() {
+        this.currentBowler = this.playersBowlingOrder.get(this.nextBowlingPlayer++);
+        this.currentBowler.startOver();
+    }
 
-    private Player getNextPlayer() {
-        Player player = this.playersBatOrder.get(this.nextBattingPlayer++);
-        player.setStatus(Player.STATUS_BATTING);
+    private Batsman getNextPlayer() {
+        Batsman player = this.playersBattingOrder.get(this.nextBattingPlayer++);
+        player.setStatus(Batsman.STATUS_BATTING);
         return player;
     }
 
+    public void setStatus(int status) {
+        this.status = status;
+    }
     public String getName() {
         return this.name;
     }
     public boolean isAllOut() {
-        return this.totalWickets == (this.playersBatOrder.size() - 1);
+        if(this.status == Team.STATUS_BATTING)
+            return this.totalWickets == (this.playersBattingOrder.size() - 1);
+        else
+            return this.totalWicketsTaken == (this.playersBattingOrder.size() - 1);
     }
-    
     public int getScore() {
         return this.teamScore;
-    }
-    private void updateScore(int runs) {
-        this.teamScore += runs;
-    }
-
-    private void updateBalls() {
-        this.ballsPlayed++;
-    }
-    private int getBallsPlayed() {
-        return this.ballsPlayed;
-    }
-
-    private void updateNoBalls() {
-        this.totalNoBalls++;
-    }
-    private int getNoBalls() {
-        return this.totalNoBalls;
-    }
-
-    private void updateWideBalls() {
-        this.totalWideBalls++;
-    }
-    private int getWideBalls() {
-        return this.totalWideBalls;
-    }
-
-    private void updateWickets() {
-        this.totalWickets++;
-    }
-    private int getWickets() {
-        return this.totalWickets;
-    }
-
-    private void updateBallsInOver() {
-        this.ballsInOver++;
-    }
-    private int getBallsInOver() {
-        return this.ballsInOver;
-    }
-    private void resetBallsInOver() {
-        this.ballsInOver = 0;
-    }
-
-    private void updateOverNumber() {
-        this.overNumber++;
-    }
-    private int getOverNumber() {
-        return this.overNumber;
     }
 
     private void printPlayerScores() {
         System.out.println();
-        System.out.println("Scorecard for #" + getName() + "# after overs: " + this.getOverNumber());
-        System.out.println("PlayerName Score 4s 6s Balls");
-
-        for(Player player : playersBatOrder) {
-            String plScore = player.getScoreCard();
-            System.out.println(plScore);
+        
+        if(this.status == Team.STATUS_BATTING) {
+            System.out.println("Scorecard for #" + getName() + "# (Batting)");
+            System.out.println("[Name]  [Score]  [4s]  [6s]  [Balls]");
+    
+            for(Batsman player : playersBattingOrder) {
+                String plScore = player.getScoreCard();
+                System.out.println(plScore);
+            }
+    
+            System.out.println("=> Total: " + this.getScore() + "/" + this.totalWickets);
+            String overs = "" + this.overNumber;
+            overs += ((this.ballsInOver < 6) ? ("." + this.ballsInOver) : "");
+            System.out.println("=> Overs: " + overs);
+        } else {
+            System.out.println("Scorecard for #" + getName() + "# (Bowling)");
+            System.out.println("[Name]  [Overs]  [Runs]  [4s]  [6s]  [Wickets]  [Maiden]  [Balls]  [dotBalls]  [Wide]  [noBalls]");
+            for(Bowler player : playersBowlingOrder) {
+                String plScore = player.getScoreCard();
+                System.out.println(plScore);
+            }
         }
-
-        System.out.println("=> Total: " + this.getScore() + "/" + this.getWickets());
-        String overs = "" + this.getOverNumber();
-        overs += ((this.getBallsInOver() < 6) ? ("." + this.getBallsInOver()) : "");
-        System.out.println("=> Overs: " + overs);
     }
 }

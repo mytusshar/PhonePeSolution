@@ -1,5 +1,5 @@
 
-public class Player {
+public class Batsman {
     public static final int STATUS_BATTING = 1;
     public static final int STATUS_OUT = 2;
     public static final int STATUS_YET_TO_BAT = 3;
@@ -10,7 +10,7 @@ public class Player {
     private String name;
     private int status;
 
-    Player(String name) {
+    Batsman(String name) {
         this.name = name;
         this.setStatus(STATUS_YET_TO_BAT);
     }
@@ -51,12 +51,20 @@ public class Player {
 
     public String getScoreCard() {
         String playerName = this.isPlaying() ? (name + "*") : name + " ";
-        String scoreCard = "";
-        scoreCard += playerName + "  ";
-        scoreCard += score + "  ";
-        scoreCard += fours + "  ";
-        scoreCard += sixes + "  ";
-        scoreCard += balls;
+        String scoreCard = " ";
+        scoreCard += this.getPaddedString(playerName, "[Name]".length()+2);
+        scoreCard += this.getPaddedString(score+"", "[Score]".length()+2);
+        scoreCard += this.getPaddedString(fours+"", "[4s]".length()+2);
+        scoreCard += this.getPaddedString(sixes+"", "[6s]".length()+2);
+        scoreCard += this.getPaddedString(balls+"", "[Balls]".length()+2);
         return scoreCard;
+    }
+
+    private String getPaddedString(String str, int paddding) {
+        StringBuilder paddedStr = new StringBuilder(str);
+        while(paddedStr.length() < paddding) {
+            paddedStr.append(" ");
+        }
+        return paddedStr.toString();
     }
 }
