@@ -54,25 +54,27 @@ public class CricketScorecard {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
+        // reading input number of playes and overs
         int numOfPlayers = sc.nextInt();
         int numOfOvers = sc.nextInt();
                                     
         CricketScorecard cScorecard = new CricketScorecard(numOfPlayers);
         cScorecard.setBattingOrder();
 
+        // reading batting and bwoling order for teams
         for(Team team : cScorecard.teams) {
             // getting batting order from input for team
             for(int plNum = 0; plNum < numOfPlayers; plNum++) {
                 String playerName = sc.next();
-                Batsman player = new Batsman(playerName);
-                team.addBatsman(player);
+                Player player = new Batsman(playerName);
+                team.addPlayer(player);
             }
 
             // getting bowling order from input for team
             for(int plNum = 0; plNum < numOfPlayers; plNum++) {
                 String playerName = sc.next();
-                Bowler player = new Bowler(playerName);
-                team.addBowler(player);
+                Player player = new Bowler(playerName);
+                team.addPlayer(player);
             }
         }
 
@@ -88,8 +90,9 @@ public class CricketScorecard {
                 // getting each over input..
                 for(int ballNum = 0; ballNum < ballsInOver; ballNum++) {
                     if(cScorecard.battingTeam.isAllOut()) {
-                        break;
+                        break; // over breaking condition..
                     }
+                    // reading each ball.
                     String ballType = sc.next();
                     Ball ball = new Ball(ballType);
                     if(ball.isWide() || ball.isNoBall()) {
@@ -99,6 +102,7 @@ public class CricketScorecard {
                     cScorecard.battingTeam.addPlayedBall(ball); // adding ball for batting team
                     cScorecard.bowlingTeam.addPlayedBall(ball); // adding ball for bowling team
 
+                    // over completion.
                     if(ballNum == ballsInOver-1) {
                         cScorecard.battingTeam.overCompleted(); // over completed..
                         cScorecard.bowlingTeam.overCompleted(); // over completed..

@@ -29,11 +29,12 @@ public class Team {
         this.playersBowlingOrder = new ArrayList<>(numPlayers);
     }
 
-    public void addBatsman(Batsman player) {
-        this.playersBattingOrder.add(player);
-    }
-    public void addBowler(Bowler player) {
-        this.playersBowlingOrder.add(player);
+    public void addPlayer(Player player) {
+        if(player instanceof Batsman){
+            this.playersBattingOrder.add((Batsman)player);
+        } else {
+            this.playersBowlingOrder.add((Bowler)player);
+        }
     }
 
     public void startBatting() {
@@ -81,7 +82,7 @@ public class Team {
         }
 
         if(this.isAllOut()) {
-            this.printPlayerScores();
+            this.printScore();
         }
     }
     private void addBowlerBall(Ball ball) {
@@ -90,7 +91,7 @@ public class Team {
             this.totalWicketsTaken++;
         }
         if(isAllOut()) {
-            this.printPlayerScores();
+            this.printScore();
         }
     }
 
@@ -103,7 +104,7 @@ public class Team {
             this.currentBowler.overEnd();
             this.sendNewPlayerToBowl();
         }
-        this.printPlayerScores();
+        this.printScore();
     }
 
     private void strikeChange() {
@@ -142,7 +143,7 @@ public class Team {
         return this.teamScore;
     }
 
-    private void printPlayerScores() {
+    private void printScore() {
         System.out.println();
         
         if(this.status == Team.STATUS_BATTING) {
