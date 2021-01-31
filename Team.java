@@ -141,25 +141,30 @@ public class Team {
         return this.teamScore;
     }
 
+    private int getExtras() {
+        return this.totalWideBalls + this.totalNoBalls;
+    }
+
     public void printScore() {
         System.out.println();
         
         if(this.status == Team.STATUS_BATTING) {
             System.out.println("Scorecard for #" + getName() + "# (Batting)");
-            System.out.println("[Name]  [Score]  [4s]  [6s]  [Balls]");
+            System.out.println("[Name]  [Score]  [4s]  [6s]  [Balls]  [StrikeRate]");
     
             for(Batsman player : playersBattingOrder) {
                 String plScore = player.getScoreCard();
                 System.out.println(plScore);
             }
     
+            System.out.println("=> Extras: " + this.getExtras());
             System.out.println("=> Total: " + this.getScore() + "/" + this.totalWickets);
             String overs = "" + this.overNumber;
             overs += ((this.ballsInOver < CricketScorecard.BALLS_IN_OVER) ? ("." + this.ballsInOver) : "");
             System.out.println("=> Overs: " + overs);
         } else {
             System.out.println("Scorecard for #" + getName() + "# (Bowling)");
-            System.out.println("[Name]  [Overs]  [Runs]  [4s]  [6s]  [Wickets]  [Maiden]  [Balls]  [dotBalls]  [Wide]  [noBalls]");
+            System.out.println("[Name]  [Overs]  [Runs]  [4s]  [6s]  [Wickets]  [Maiden]  [Balls]  [dotBalls]  [Wide]  [noBalls]  [EconomyRate]");
             for(Bowler player : playersBowlingOrder) {
                 String plScore = player.getScoreCard();
                 System.out.println(plScore);

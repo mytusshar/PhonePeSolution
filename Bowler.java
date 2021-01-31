@@ -31,6 +31,15 @@ public class Bowler extends Player{
         this.dotBallsInOver = 0;
     }
 
+    private String getEconomyRate() {
+        if(this.overs == 0 && this.ballsInOver == 0) {
+            return "-";
+        }
+        float totalOvers = this.overs + ((float)ballsInOver / (float)CricketScorecard.BALLS_IN_OVER);
+        float economy = ((float)this.runs / totalOvers);
+        return String.format("%.2f", economy);
+    }
+
     @Override
     void updateBalls(Ball ball) {
         this.balls++;
@@ -78,6 +87,7 @@ public class Bowler extends Player{
         scoreCard.append(this.getPaddedString(dotBalls+"", "[dotBalls]".length()+2));
         scoreCard.append(this.getPaddedString(wideBalls+"", "[Wide]".length()+2));
         scoreCard.append(this.getPaddedString(noBalls+"", "[noBalls]".length()+2));
+        scoreCard.append(this.getPaddedString(this.getEconomyRate(), "[EconomyRate]".length()+2));
         return scoreCard.toString();
     }
     

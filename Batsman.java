@@ -1,4 +1,3 @@
-
 public class Batsman extends Player{
     public static final int STATUS_BATTING = 1;
     public static final int STATUS_OUT = 2;
@@ -10,6 +9,14 @@ public class Batsman extends Player{
 
     Batsman(String name) {
         super(name, STATUS_YET_TO_BAT);
+    }
+
+    private String getStrikeRate() {
+        if(this.balls == 0) {
+            return "-";
+        }
+        float strikeRate = ((float)score / (float)this.balls) * 100;
+        return String.format("%.2f", strikeRate);
     }
     
     @Override
@@ -43,6 +50,7 @@ public class Batsman extends Player{
         scoreCard.append(this.getPaddedString(fours+"", "[4s]".length()+2));
         scoreCard.append(this.getPaddedString(sixes+"", "[6s]".length()+2));
         scoreCard.append(this.getPaddedString(balls+"", "[Balls]".length()+2));
+        scoreCard.append(this.getPaddedString(this.getStrikeRate(), "[StrikeRate]".length()+2));
         return scoreCard.toString();
     }
 }
