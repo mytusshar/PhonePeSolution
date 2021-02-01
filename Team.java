@@ -24,6 +24,7 @@ public class Team {
     private int totalNoBalls = 0;
     private int status;
     private int totalOvers;
+    private int extraRuns = 0;
 
     Team(String name, int numPlayers, int totalOvers) {
         this.name = name;
@@ -66,6 +67,10 @@ public class Team {
 
         if(!ball.isWide() && !ball.isNoBall()) {
             this.ballsInOver++;
+        }
+
+        if(ball.isNoBall() || ball.isWide()) {
+            this.extraRuns += runsInThisBall;
         }
 
         if(ball.isWide()) {
@@ -142,7 +147,11 @@ public class Team {
     }
 
     private int getExtras() {
-        return this.totalWideBalls + this.totalNoBalls;
+        return this.extraRuns;
+    }
+
+    public int getRemainingWickets() {
+        return (this.playersBattingOrder.size() - this.totalWickets);
     }
 
     public void printScore() {

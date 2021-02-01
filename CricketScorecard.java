@@ -42,9 +42,13 @@ public class CricketScorecard {
         if(team1.getScore() == team2.getScore()) {
             System.out.println("Result: Match Draw");
         } else {
-            String winningTeamName = team1.getScore() > team2.getScore() ? team1.getName() : team2.getName();
-            int scoreDiff = Math.abs(team1.getScore() - team2.getScore());
-            System.out.println("Result: " + winningTeamName + " won the match by " + scoreDiff + " run.");
+            if(team1.getScore() > team2.getScore()) {
+                int scoreDiff = Math.abs(team1.getScore() - team2.getScore());
+                System.out.println("Result: " + team1.getName() + " won the match by " + scoreDiff + " run.");
+            } else {
+                System.out.println("Result: " + team2.getName() + " won the match by " 
+                                    + team2.getRemainingWickets() + " wickets.");
+            }
         }
         System.out.println("#######################");
     }

@@ -15,7 +15,12 @@ public class Ball {
     }
     private void setRuns() {
         if(this.isWide() || this.isNoBall()) {
-            this.runs = 1;
+            if(this.ballType.length() == 2) {
+                this.runs = 1;
+            } else {
+                int newRuns = Integer.parseInt(this.ballType.substring(3, this.ballType.length()));
+                this.runs = newRuns + 1;
+            }
         } else if(!this.isWicket()) {
             this.runs = Integer.parseInt(this.ballType);
         }
@@ -25,10 +30,10 @@ public class Ball {
         return this.ballType.equals(WICKET);
     }
     public boolean isWide() {
-        return this.ballType.equals(WIDE);
+        return (this.ballType.indexOf(WIDE) > -1);
     }
     public boolean isNoBall() {
-        return this.ballType.equals(NO_BALL);
+        return (this.ballType.indexOf(NO_BALL) > -1);
     }
     public boolean isFour() {
         return (this.runs == 4);
